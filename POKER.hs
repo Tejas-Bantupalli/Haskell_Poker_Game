@@ -8,17 +8,26 @@ import Data.Maybe
 types :: [(Int,String)]
 types = [(1,"Royal Flush"),(2,"Straight Flush"),(3,"Four of a kind"),(4,"Full House"),(5,"Flush"),(6,"Straight"),(7,"Three of a kind"),(8,"Two Pair"),(9,"Pair"),(10,"High card")]
 
+numbers :: [(Int,String)]
+numbers = [(2,"Two"),(3,"Three"),(4,"Four"),(5,"Five"),(6,"Six"),(7,"Seven"),(8,"Eight"),(9,"Nine"),(10,"Ten"),(11,"Jack"),(12,"Queen"),(13,"King"),(14,"Ace")]
+
+prettyPrint :: (String,[(String,Int)]) -> (String,[String])
+prettyPrint x = ((fst x), cardPrint(snd x))
+
+cardPrint :: [(String,Int)] -> [String]
+cardPrint x =  map (\z ->(fromJust (lookup (snd z) numbers)) ++ " of " ++ (fst z))   (x)
+
 fun :: (Int,[(String,Int)]) -> (String,[(String,Int)])
 fun x = (fromJust(lookup (fst x) types),(snd x))
 
 priority_order :: [(String,Int)]-> (Int,[(String,Int)])
 priority_order x 
   | length (nub (fst (unzip x))) == 1 && (sort (snd (unzip x))) == [10,11,12,13,14] = (1,x)
-  | length (nub (fst (unzip x))) == 1 &&  (take (length x) [head (sort (snd (unzip x)))..]) == (sort (snd (unzip x))) = (2,x)
+  | length (nub (fst (unzip x))) == 1 &&  ((take (length x) [head (sort (snd (unzip x)))..]) == (sort (snd (unzip x))) || (sort (snd (unzip x))) == [2,3,4,5,6] ) = (2,x)
   | length (filter (== head(sort (snd (unzip x)))) (sort (snd (unzip x)))) `elem` [1,4] && length (nub (snd (unzip x))) == 2 = (3,x)
   | length (filter (== head(sort (snd (unzip x)))) (sort (snd (unzip x)))) `elem` [2,3] && length (nub (snd (unzip x))) == 2 = (4,x)
   | length (nub (fst (unzip x))) == 1 = (5,x)
-  | (take (length x) [head (sort (snd (unzip x)))..]) == (sort (snd (unzip x))) = (6,x)
+  | (take (length x) [head (sort (snd (unzip x)))..]) == (sort (snd (unzip x))) || (sort (snd (unzip x))) == [2,3,4,5,6] = (6,x)
   | 3 `elem` map (\k -> length (filter (== (snd k)) (sort (snd (unzip x))))) x  && length (nub (snd (unzip x))) == 3 = (7,x)
   | length (filter (== head(sort (snd (unzip x)))) (sort (snd (unzip x)))) `elem` [1,2] && length (nub (snd (unzip x))) == 3 = (8,x)
   | length (nub (snd (unzip x))) == 4 = (9,x)
@@ -82,13 +91,13 @@ playGame :: [Card] -> [Card] -> [Card]-> IO ()
 playGame playerHand computerHand deck = do
     putStrLn "Welcome to the card game!"
     putStrLn "Player's initial hand:"
-    print playerHand
+    print (cardPrint playerHand)
     (newCard, remainingDeck) <- revealCard deck
     (newCard', remainingDeck') <- revealCard remainingDeck
     (newCard'', remainingDeck'') <- revealCard remainingDeck'
     let updatedPlayerdeck = [newCard]++[newCard']++[newCard'']
     putStrLn "Deck:"
-    print updatedPlayerdeck
+    print (cardPrint updatedPlayerdeck)
     fold <- askFold
     if fold
         then 
@@ -107,7 +116,7 @@ playRound n playerHand computerHand deck actualdeck
         (newCard, remainingDeck) <- revealCard deck
         let updatedPlayerDeck = newCard : actualdeck
         putStrLn "Deck:"
-        print updatedPlayerDeck
+        print (cardPrint updatedPlayerDeck)
         fold <- askFold
         if fold
             then endGame playerHand computerHand updatedPlayerDeck
@@ -117,13 +126,13 @@ endGame :: [Card] -> [Card] -> [Card] -> IO ()
 endGame playerHand computerHand deck = do
     let playerWin = finaliser [(best_comb deck playerHand), (best_comb deck computerHand)]
     putStrLn "Your hand :\n"
-    print (playerHand)    
+    print (cardPrint playerHand)    
     putStrLn "Your best comb :\n"
-    print (fun (best_comb deck playerHand))
+    print (prettyPrint (fun (best_comb deck playerHand)))
     putStrLn "My hand :\n"
-    print (computerHand)    
+    print (cardPrint computerHand)    
     putStrLn "My best comb:\n"
-    print (fun (best_comb deck computerHand))
+    print (prettyPrint (fun (best_comb deck computerHand)))
     putStrLn $ if playerWin then "You win!" else "You lose."
 
 shuffle :: [a] -> IO [a]
