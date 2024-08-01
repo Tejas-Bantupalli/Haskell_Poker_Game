@@ -1,5 +1,10 @@
 # Poker Game
 
-This is a first iteration implementation of a single player poker game.
+This Haskell program is a card game where players compete with a computer opponent. The game allows you to draw cards, evaluate hands, and place bets. It uses a terminal-based interface and incorporates probability calculations for various poker hands.
 
-Bonus: When given the player's hand, and the deck at a certain instant of time, the program also calculates the probability of getting a better/higher ranked hand. Moreover, if a higher hand can be attained, the most probable such hand is shown, as well as the probability of attaining that particular hand.
+Features
+Deck Generation: Creates a deck of cards with four suits and ranks from 2 to Ace.
+Card Drawing: Draws cards randomly from the deck.
+Hand Evaluation: Evaluates poker hands and calculates probabilities for different hands.
+Betting System: Allows players to bet and fold during the game.
+Game Rounds: Plays multiple rounds with the option to start a new game.
